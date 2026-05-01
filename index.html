@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#020202] text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PRIMARY SEO -->
+    <title>Team Shasthra | Cinematic Visual Arts Studio & Film Production</title>
+    <meta name="description" content="Team Shasthra is a futuristic visual arts collective and film production studio in Sri Lanka. Creators of the Prathirava short film series. We dominate silently.">
+    <meta name="keywords" content="Team Shasthra, Shasthra Productions, shasthra new film, films Sri Lanka, cinematography, short films, Prathirava, visual arts studio">
+    <meta name="author" content="Team Shasthra">
+    <link rel="canonical" href="https://www.shasthra.netlify.app/">
+
+    <!-- OPEN GRAPH (Facebook, LinkedIn, WhatsApp Sharing) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.shasthra.netlify.app/">
+    <meta property="og:title" content="Team Shasthra | Unparalleled Experience in Visual Art">
+    <meta property="og:description" content="A futuristic collective of visual architects merging technical precision with raw cinematic instinct. Watch Prathirava Episode 1 now.">
+    <meta property="og:image" content="https://www.shasthra.netlify.app/teamshasthra.jpg">
+
+    <!-- TWITTER CARDS -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.shasthra.netlify.app/">
+    <meta name="twitter:title" content="Team Shasthra | Cinematic Collective">
+    <meta name="twitter:description" content="A futuristic collective of visual architects merging technical precision with raw cinematic instinct.">
+    <meta name="twitter:image" content="https://www.shasthra.netlify.app/teamshasthra.png">
+
+    <!-- STRUCTURED DATA (JSON-LD for Google Rich Results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProductionCompany",
+      "name": "Team Shasthra",
+      "url": "https://www.shasthra.netlify.app",
+      "logo": "https://www.shasthra.netlify.app/teamshasthra.jpg",
+      "description": "Unparalleled experience in visual art. Team Shasthra is a film production and cinematography studio based in Sri Lanka.",
+      "foundingLocation": {
+        "@type": "Place",
+        "name": "Colombo, Sri Lanka"
+      },
+      "founders": [
+        {"@type": "Person", "name": "Shashen"},
+        {"@type": "Person", "name": "Nimantha"}
+      ],
+      "sameAs": [
+        "https://instagram.com/teamshasthra",
+        "https://youtube.com/teamshasthra"
+      ]
+    }
+    </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js for Scroll-Driven 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Typography: Orbitron (Futuristic Display) & Rajdhani (Technical Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="teamshasthra.png" type="image/x-icon">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Rajdhani', 'sans-serif'],
+                        serif: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            accent: '#FFFFFF', // High-contrast White Accent
+                            dark: '#020202',
+                            glass: 'rgba(20, 20, 20, 0.4)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            background-color: #020202;
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            cursor: none; /* Hide default cursor to use custom one */
+        }
+
+        /* 3D Canvas fixed to the back */
+        #flythrough-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Content Layering */
+        #scroll-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        /* Slow Ken Burns image zoom */
+        .img-container {
+            overflow: hidden;
+        }
+        .img-zoom {
+            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: scale(1.02);
+        }
+        .group:hover .img-zoom {
+            transform: scale(1.08);
+        }
+
+        /* Scroll Progress Line */
+        .progress-line {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100vh;
+            background: rgba(255,255,255,0.1);
+            z-index: 50;
+        }
+        .progress-fill {
+            width: 100%;
+            background: #FFFFFF;
+            height: 0%; /* Updated via JS */
+            transition: height 0.1s ease-out;
+        }
+
+        /* Text Reveals */
+        .reveal-fade {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .reveal-fade.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom minimal scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb:hover { background: #FFFFFF; }
+
+        /* Custom Mouse Icon */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
+            transform: translate(-50%, -50%);
+        }
+        .custom-cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+        }
+        body.hover-effect .custom-cursor {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #FFFFFF;
+        }
+        @media (hover: none) and (pointer: coarse) {
+            body { cursor: auto; }
+            .custom-cursor, .custom-cursor-dot { display: none; }
+        }
+    </style>
+</head>
+<body class="selection:bg-brand-accent selection:text-black">
+
+    <!-- Custom Cursor Elements -->
+    <div class="custom-cursor"></div>
+    <div class="custom-cursor-dot"></div>
+
+    <!-- Floating Social Bar (Desktop Only) -->
+    <div class="fixed right-6 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 z-50 pointer-events-none">
+        <a href="http://www.youtube.com/@ShasthraProductions" target="_blank" class="pointer-events-auto text-white/30 hover:text-white hover:scale-125 hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-all duration-300">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a href="https://www.tiktok.com/@shasthra998" target="_blank" class="pointer-events-auto text-white/30 hover:text-white hover:scale-125 hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-all duration-300">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/share/1CEyXc7X2g/" target="_blank" class="pointer-events-auto text-white/30 hover:text-white hover:scale-125 hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-all duration-300">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+    </div>
+
+    <!-- 3D Fly-Through Background -->
+    <canvas id="flythrough-canvas"></canvas>
+
+    <!-- Scroll Progress Indicator -->
+    <div class="progress-line hidden md:block">
+        <div class="progress-fill" id="progress-bar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="fixed top-0 w-full px-6 py-6 flex justify-between items-center z-50 pointer-events-none">
+        <div class="font-serif font-bold text-xl md:text-3xl tracking-widest uppercase pointer-events-auto">
+            Shasthra<span class="text-brand-accent">.</span>
+        </div>
+        <a href="#about" class="font-sans text-xs tracking-[0.2em] uppercase pointer-events-auto cursor-pointer hover:text-brand-accent transition-colors">
+            Explore
+        </a>
+    </header>
+
+    <!-- Main Scrolling Content -->
+    <div id="scroll-content" class="w-full">
+
+        <!-- 1. HERO SECTION -->
+        <section class="min-h-[100svh] flex flex-col items-center justify-center text-center px-4 md:px-6 pt-20">
+            <p class="font-sans text-xs md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.4em] text-gray-400 uppercase mb-4 md:mb-6 reveal-fade active font-semibold">
+                Unparalleled experience in visual art
+            </p>
+            
+            <!-- Scaled Typography: Prevents overflow on mobile, huge on desktop -->
+            <h1 class="font-serif text-5xl sm:text-6xl md:text-8xl lg:text-9xl leading-tight md:leading-none uppercase tracking-widest md:tracking-[0.1em] reveal-fade active w-full break-words" style="transition-delay: 100ms;">
+                TEAM <br class="hidden sm:block">
+                <span class="text-brand-accent drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] md:drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] inline-block mt-2 md:mt-0">SHASTHRA.</span>
+            </h1>
+            
+            <div class="absolute bottom-8 md:bottom-12 flex flex-col items-center reveal-fade active" style="transition-delay: 300ms;">
+                <span class="font-sans text-[10px] md:text-[12px] tracking-[0.2em] uppercase text-gray-500 mb-4 font-semibold">Scroll to Enter</span>
+                <div class="w-[1px] h-12 md:h-16 bg-white/20 overflow-hidden relative">
+                    <div class="w-full h-full bg-white absolute top-[-100%] animate-[scrollDown_2s_ease-in-out_infinite]"></div>
+                </div>
+            </div>
+        </section>
+
+        <style>
+            @keyframes scrollDown {
+                0% { top: -100%; }
+                50% { top: 0%; }
+                100% { top: 100%; }
+            }
+        </style>
+
+        <!-- 2. TEAM OVERVIEW -->
+        <section id="about" class="py-24 md:py-32 px-6">
+            <div class="max-w-4xl mx-auto text-center reveal-fade">
+                <h2 class="font-serif text-2xl md:text-4xl lg:text-5xl uppercase tracking-widest mb-6 md:mb-8 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">About Team Shasthra</h2>
+                <p class="font-sans font-light text-gray-400 text-base md:text-xl lg:text-2xl leading-relaxed mb-6">
+                    We are a futuristic collective of visual architects. By merging cutting-edge technical precision with raw cinematic instinct, we forge narratives that transcend the ordinary screen.
+                </p>
+                <p class="font-sans font-medium text-brand-accent text-sm md:text-lg lg:text-xl tracking-[0.2em] uppercase">
+                    We Create Future.
+                </p>
+            </div>
+        </section>
+
+        <!-- 3. ROSTER: SHASHEN (Left Aligned) -->
+        <section class="min-h-[80vh] flex items-center px-6 md:px-12 lg:px-20 py-16 md:py-20">
+            <div class="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-24">
+                
+                <div class="w-full md:w-1/2 glass-panel p-3 md:p-6 rounded-sm group reveal-fade">
+                    <div class="aspect-[4/5] img-container bg-black relative">
+                        <img src="Shashen2.png" alt="Portrait of Shashen, Art Director at Team Shasthra" class="w-full h-full object-cover img-zoom opacity-90" />
+                        <div class="absolute inset-0 bg-white mix-blend-overlay opacity-0 group-hover:opacity-20 transition-opacity duration-1000"></div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 reveal-fade text-left">
+                    <p class="font-sans text-[10px] md:text-xs tracking-[0.3em] text-brand-accent uppercase mb-3 md:mb-4">01 // Art Direction</p>
+                    <h3 class="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl uppercase mb-4 md:mb-6">Shashen</h3>
+                    <p class="font-sans font-light text-gray-400 text-sm md:text-base leading-relaxed max-w-md">
+                        The structural foundation of the Shasthra vision. Shashen crafts the overarching concept and aesthetic trajectory of every project, ensuring visual supremacy in every frame.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 4. ROSTER: NIMANTHA (Right Aligned) -->
+        <section class="min-h-[80vh] flex items-center px-6 md:px-12 lg:px-20 py-16 md:py-20">
+            <!-- Reverse layout for desktop -->
+            <div class="max-w-7xl mx-auto w-full flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 lg:gap-24">
+                
+                <div class="w-full md:w-1/2 glass-panel p-3 md:p-6 rounded-sm group reveal-fade">
+                    <div class="aspect-[4/5] img-container bg-black relative">
+                        <img src="Nimantha.jpeg" alt="Portrait of Nimantha, Studio Director at Team Shasthra" class="w-full h-full object-cover img-zoom opacity-90" style="object-position: top center;" />
+                        <div class="absolute inset-0 bg-white mix-blend-overlay opacity-0 group-hover:opacity-20 transition-opacity duration-1000"></div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 reveal-fade text-left md:text-right">
+                    <p class="font-sans text-[10px] md:text-xs tracking-[0.3em] text-brand-accent uppercase mb-3 md:mb-4">02 // Studio Director</p>
+                    <h3 class="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl uppercase mb-4 md:mb-6">Nimantha</h3>
+                    <p class="font-sans font-light text-gray-400 text-sm md:text-base leading-relaxed max-w-md md:ml-auto">
+                        Executing the impossible. Nimantha orchestrates the studio's technical operations, translating abstract visions into tangible, award-winning cinematic productions.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. ROSTER: THE MUSE (Left Aligned) -->
+        <section class="min-h-[80vh] flex items-center px-6 md:px-12 lg:px-20 py-16 md:py-20">
+            <div class="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-24">
+                
+                <div class="w-full md:w-1/2 glass-panel p-3 md:p-6 rounded-sm group reveal-fade">
+                    <div class="aspect-[4/5] img-container bg-black relative">
+                        <img src="Tharushika.jpeg" alt="The Muse, Cinematography Lead at Team Shasthra" class="w-full h-full object-cover img-zoom opacity-90" />
+                        <div class="absolute inset-0 bg-white mix-blend-overlay opacity-0 group-hover:opacity-20 transition-opacity duration-1000"></div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 reveal-fade text-left">
+                    <p class="font-sans text-[10px] md:text-xs tracking-[0.3em] text-brand-accent uppercase mb-3 md:mb-4">03 // Cinematography</p>
+                    <h3 class="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl uppercase mb-4 md:mb-6">Anuradhi</h3>
+                    <p class="font-sans font-light text-gray-400 text-sm md:text-base leading-relaxed max-w-md">
+                        Mastering the lens. Dictating light, shadow, and movement, capturing the ethereal and grounding it into raw, emotive digital experiences.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. LATEST RELEASE: PRATHIRAVA SERIES -->
+        <section class="min-h-[90vh] flex flex-col items-center justify-center px-6 md:px-12 lg:px-20 py-24 relative z-10">
+            <div class="max-w-7xl mx-auto w-full glass-panel p-6 md:p-12 lg:p-16 border-l-4 border-l-brand-accent rounded-sm reveal-fade relative overflow-hidden">
+                <!-- Decorative background glow -->
+                <div class="absolute -top-40 -right-40 w-96 h-96 bg-white/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+                <div class="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center justify-between relative z-10">
+                    
+                    <!-- Information & Tracker -->
+                    <div class="w-full lg:flex-1 text-left min-w-0">
+                        <div class="flex items-center gap-4 mb-4 md:mb-6">
+                            <span class="w-2 h-2 md:w-3 md:h-3 bg-brand-accent animate-pulse rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]"></span>
+                            <p class="font-sans text-[10px] md:text-xs tracking-[0.3em] md:tracking-[0.4em] text-brand-accent uppercase font-semibold">Now Streaming // Short Film Series</p>
+                        </div>
+                        
+                        <h2 class="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-5xl xl:text-6xl 2xl:text-7xl uppercase tracking-widest mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] break-words">Prathirava</h2>
+                        
+                        <p class="font-sans font-light text-gray-400 text-sm md:text-lg leading-relaxed mb-10 max-w-lg">
+                            Dive into the Shasthra universe with our premier 4-part short film series. The journey begins here. Experience the unparalleled visual storytelling of Episode 01.
+                        </p>
+                        
+                        <!-- Futuristic Episode Tracker -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 font-sans text-[10px] md:text-xs tracking-widest uppercase mb-10">
+                            <div class="border border-brand-accent bg-brand-accent/10 p-3 md:p-4 text-center text-brand-accent shadow-[0_0_15px_rgba(255,255,255,0.2)] relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-full h-[1px] bg-brand-accent shadow-[0_0_5px_rgba(255,255,255,1)]"></div>
+                                <span class="block font-bold text-sm md:text-base">EP 01</span>
+                                <span class="text-[8px] md:text-[9px] mt-1 md:mt-2 block opacity-80">Out Now</span>
+                            </div>
+                            <div class="border border-white/5 bg-white/5 p-3 md:p-4 text-center text-gray-500">
+                                <span class="block font-bold text-sm md:text-base">EP 02</span>
+                                <span class="text-[8px] md:text-[9px] mt-1 md:mt-2 block">In Dev</span>
+                            </div>
+                            <div class="border border-white/5 bg-white/5 p-3 md:p-4 text-center text-gray-600">
+                                <span class="block font-bold text-sm md:text-base">EP 03</span>
+                                <span class="text-[8px] md:text-[9px] mt-1 md:mt-2 block">Locked</span>
+                            </div>
+                            <div class="border border-white/5 bg-white/5 p-3 md:p-4 text-center text-gray-600">
+                                <span class="block font-bold text-sm md:text-base">EP 04</span>
+                                <span class="text-[8px] md:text-[9px] mt-1 md:mt-2 block">Locked</span>
+                            </div>
+                        </div>
+
+                        <!-- Cyber Watch Button -->
+                        <a href="https://youtu.be/Bqo78CiwfrA?si=W-s7QuDACOQnmW3e" target="_blank" class="inline-flex items-center gap-4 font-sans text-xs sm:text-sm md:text-base font-bold tracking-[0.2em] md:tracking-[0.3em] uppercase bg-transparent text-brand-accent border-2 border-brand-accent px-8 md:px-10 py-4 hover:bg-brand-accent hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] w-full md:w-max justify-center group">
+                            <svg class="w-5 h-5 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            Watch Episode 1
+                        </a>
+                    </div>
+
+                    <!-- Holographic HUD Video Thumbnail -->
+                    <div class="w-full lg:flex-1 aspect-video bg-[#050505] border border-white/10 relative overflow-hidden group shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+                        <!-- YouTube Thumbnail Image -->
+                        <img src="https://img.youtube.com/vi/Bqo78CiwfrA/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/Bqo78CiwfrA/hqdefault.jpg'" alt="Prathirava Episode 1 Thumbnail" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105" />
+                        
+                        <!-- Holographic dark overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-black/90 z-10 mix-blend-overlay transition-opacity duration-500 group-hover:opacity-50"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center z-20">
+                            <!-- Play Ring -->
+                            <a href="https://youtu.be/Bqo78CiwfrA?si=W-s7QuDACOQnmW3e" target="_blank" class="w-16 h-16 md:w-24 md:h-24 rounded-full border border-white/30 flex items-center justify-center group-hover:scale-110 group-hover:border-brand-accent transition-all duration-500 bg-black/40 backdrop-blur-md cursor-pointer shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                                <svg class="w-6 h-6 md:w-10 md:h-10 text-white group-hover:text-brand-accent transition-colors translate-x-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </a>
+                        </div>
+                        
+                        <!-- Futuristic HUD Grid overlay -->
+                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSJyZ2JhKDAsMCwwLDApIiAvPgo8cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiAvPgo8L3N2Zz4=')] z-30 pointer-events-none opacity-50"></div>
+                        
+                        <!-- HUD Corner Accents -->
+                        <div class="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-brand-accent/50 z-30"></div>
+                        <div class="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-brand-accent/50 z-30"></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. FOOTER -->
+        <section class="min-h-[75vh] flex flex-col items-center justify-center text-center px-6 pt-24 md:pt-32 border-t border-white/5 relative bg-black/80 backdrop-blur-md mt-24 md:mt-32 pb-32">
+            <div class="reveal-fade flex flex-col items-center w-full">
+                <h2 class="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl uppercase mt-8 md:mt-12 mb-8 md:mb-12 tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">End Scene.</h2>
+                
+                <!-- Fixed, mobile-responsive futuristic button -->
+                <a href="https://whatsapp.com/channel/0029Vawmt9b2f3EFWvI8Ms1r" target="_blank" class="inline-block font-sans text-xs sm:text-sm md:text-base font-bold tracking-[0.2em] md:tracking-[0.3em] uppercase border-2 border-brand-accent text-brand-accent px-6 sm:px-8 md:px-12 py-3 md:py-4 hover:bg-brand-accent hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] w-full max-w-[280px] md:max-w-max text-center">
+                    Collaborate With Us
+                </a>
+
+                <!-- HIGH-LIGHTED SOCIAL MEDIA BLOCKS -->
+                <div class="mt-16 md:mt-24 w-full flex flex-col items-center gap-6">
+                    <span class="font-sans text-[10px] md:text-[12px] tracking-[0.4em] uppercase text-gray-500 font-bold drop-shadow-md">Connect to the Grid</span>
+                    <div class="flex flex-wrap justify-center gap-4 md:gap-8 w-full max-w-2xl">
+                        
+                        <!-- YouTube Block -->
+                        <a href="http://www.youtube.com/@ShasthraProductions" target="_blank" class="group relative flex flex-col items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-white/5 border border-white/20 hover:border-white transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.6)] overflow-hidden rounded-sm hover:-translate-y-2">
+                            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                            <svg class="w-8 h-8 md:w-12 md:h-12 text-white/70 group-hover:text-white group-hover:scale-110 transition-all duration-300 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            <span class="font-sans text-[10px] tracking-widest uppercase text-white/50 group-hover:text-white transition-colors">YouTube</span>
+                        </a>
+
+                        <!-- TikTok Block -->
+                        <a href="https://www.tiktok.com/@shasthra998" target="_blank" class="group relative flex flex-col items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-white/5 border border-white/20 hover:border-white transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.6)] overflow-hidden rounded-sm hover:-translate-y-2">
+                            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                            <svg class="w-8 h-8 md:w-12 md:h-12 text-white/70 group-hover:text-white group-hover:scale-110 transition-all duration-300 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                            <span class="font-sans text-[10px] tracking-widest uppercase text-white/50 group-hover:text-white transition-colors">TikTok</span>
+                        </a>
+
+                        <!-- Facebook Block -->
+                        <a href="https://www.facebook.com/share/1CEyXc7X2g/" target="_blank" class="group relative flex flex-col items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-white/5 border border-white/20 hover:border-white transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.6)] overflow-hidden rounded-sm hover:-translate-y-2">
+                            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                            <svg class="w-8 h-8 md:w-12 md:h-12 text-white/70 group-hover:text-white group-hover:scale-110 transition-all duration-300 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            <span class="font-sans text-[10px] tracking-widest uppercase text-white/50 group-hover:text-white transition-colors">Facebook</span>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-6 md:bottom-8 w-full flex flex-col md:flex-row justify-between items-center px-6 md:px-12 font-sans text-[10px] md:text-[12px] tracking-widest uppercase text-gray-500 gap-4 font-semibold text-center md:text-left">
+                <p>&copy; <span id="year"></span> Team Shasthra.</p>
+                <p class="text-white">Concept & Art Direction by Shashen</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Set Year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // --- CUSTOM CURSOR LOGIC ---
+        const customCursor = document.querySelector('.custom-cursor');
+        const customCursorDot = document.querySelector('.custom-cursor-dot');
+        let cMouseX = window.innerWidth / 2, cMouseY = window.innerHeight / 2;
+        let cRingX = cMouseX, cRingY = cMouseY;
+
+        if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cMouseX = e.clientX;
+                cMouseY = e.clientY;
+                customCursorDot.style.transform = `translate(${cMouseX}px, ${cMouseY}px) translate(-50%, -50%)`;
+            });
+
+            const renderCustomCursor = () => {
+                cRingX += (cMouseX - cRingX) * 0.15;
+                cRingY += (cMouseY - cRingY) * 0.15;
+                customCursor.style.transform = `translate(${cRingX}px, ${cRingY}px) translate(-50%, -50%)`;
+                requestAnimationFrame(renderCustomCursor);
+            };
+            renderCustomCursor();
+
+            // Add hover class to body when hovering over interactable elements
+            const hoverTargets = document.querySelectorAll('a, button');
+            hoverTargets.forEach(target => {
+                target.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hover-effect');
+                });
+                target.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hover-effect');
+                });
+            });
+        }
+
+        // --- Intersection Observer for Fade Reveals ---
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -15% 0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-fade').forEach((el) => {
+            observer.observe(el);
+        });
+
+
+        // --- SCROLL-DRIVEN 3D: Cinematic Frame Fly-Through ---
+        const canvas = document.getElementById('flythrough-canvas');
+        const scene = new THREE.Scene();
+        
+        // Deep fog to hide the end of the tunnel
+        scene.fog = new THREE.FogExp2('#020202', 0.015);
+
+        // Camera setup
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Start camera at z=10
+        camera.position.set(0, 0, 10);
+
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            alpha: true,
+            antialias: true 
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+        // Create the "Tunnel of Frames"
+        const frameGroup = new THREE.Group();
+        const frameCount = window.innerWidth < 768 ? 30 : 80; // Render less frames on mobile for performance
+        const frames = [];
+
+        // 16:9 Aspect Ratio wireframe geometry
+        const frameGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(16, 9));
+        const frameMat = new THREE.LineBasicMaterial({ 
+            color: 0xffffff, 
+            transparent: true, 
+            opacity: 0.15 
+        });
+        
+        // A white accent frame material (replaced the red one)
+        const accentMat = new THREE.LineBasicMaterial({ 
+            color: 0xffffff, 
+            transparent: true, 
+            opacity: 0.5 
+        });
+
+        // Distribute frames deeply along the Z-axis
+        const tunnelDepth = 250; 
+
+        for (let i = 0; i < frameCount; i++) {
+            // Every 5th frame gets the brighter white accent
+            const isAccent = i % 5 === 0;
+            const frame = new THREE.LineSegments(frameGeo, isAccent ? accentMat : frameMat);
+            
+            // Randomly offset X and Y slightly for an organic, chaotic tunnel
+            frame.position.x = (Math.random() - 0.5) * 15;
+            frame.position.y = (Math.random() - 0.5) * 10;
+            
+            // Distribute linearly along negative Z axis
+            frame.position.z = -(i / frameCount) * tunnelDepth;
+            
+            // Random slight rotation
+            frame.rotation.z = (Math.random() - 0.5) * 0.5;
+
+            frames.push(frame);
+            frameGroup.add(frame);
+        }
+
+        scene.add(frameGroup);
+
+        // Add some floating dust particles to enhance the speed effect
+        const particleGeo = new THREE.BufferGeometry();
+        const particleCount = window.innerWidth < 768 ? 200 : 500; // Less particles on mobile
+        const posArray = new Float32Array(particleCount * 3);
+        for(let i=0; i < particleCount * 3; i+=3) {
+            posArray[i] = (Math.random() - 0.5) * 40;
+            posArray[i+1] = (Math.random() - 0.5) * 40;
+            posArray[i+2] = (Math.random() - 0.5) * tunnelDepth - 10;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.5 });
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- Core Scroll Logic ---
+        let scrollPercent = 0;
+        let targetCameraZ = 10;
+        const progressBar = document.getElementById('progress-bar');
+
+        window.addEventListener('scroll', () => {
+            // Calculate how far down the page we are (0.0 to 1.0)
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const maxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            
+            if (maxScroll > 0) {
+                scrollPercent = scrollTop / maxScroll;
+            } else {
+                scrollPercent = 0;
+            }
+
+            // Map scroll percentage to camera Z position
+            // Start at 10, fly forward into the negative Z tunnel
+            targetCameraZ = 10 - (scrollPercent * (tunnelDepth - 20));
+
+            // Update CSS Progress Bar
+            if (progressBar) {
+                progressBar.style.height = `${scrollPercent * 100}%`;
+            }
+        });
+
+        // Add gentle constant rotation to the frames to keep the scene alive
+        const clock = new THREE.Clock();
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // LERP (Smooth Interpolation) for camera movement
+            // This prevents the camera from jumping if the user scrolls fast
+            camera.position.z += (targetCameraZ - camera.position.z) * 0.05;
+
+            // Slowly rotate the entire tunnel
+            frameGroup.rotation.z = Math.sin(elapsedTime * 0.1) * 0.1;
+
+            // Make individual frames slowly breathe/rotate
+            frames.forEach((frame, index) => {
+                frame.rotation.z += Math.sin(elapsedTime * 0.5 + index) * 0.001;
+            });
+
+            // Make particles slowly drift towards the camera
+            const positions = particles.geometry.attributes.position.array;
+            for(let i=2; i < particleCount * 3; i+=3) {
+                positions[i] += 0.05;
+                // If particle goes behind camera, reset it to the deep tunnel
+                if(positions[i] > camera.position.z + 5) {
+                    positions[i] = camera.position.z - tunnelDepth;
+                }
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+</html>
